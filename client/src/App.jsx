@@ -390,7 +390,8 @@ function TradingPlatform({ token, email, hasKeys, onLogout, onConnectKeys }) {
 
   // WebSocket live prices
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:3002');
+    const wsBase = import.meta.env.VITE_WS_URL || 'ws://localhost:3002';
+    const ws = new WebSocket(wsBase);
     ws.onmessage = e => {
       try {
         const msg = JSON.parse(e.data);
