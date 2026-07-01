@@ -5,11 +5,12 @@ const mongoose  = require('mongoose');
 const WebSocket = require('ws');
 
 const app = express();
-app.use(cors({ origin: [
-  'http://localhost:5173',
-  process.env.FRONTEND_URL
-]}));
-app.use(express.json());
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'https://crypto-trading-beta.vercel.app'
+  ]
+}));
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
