@@ -1,4 +1,5 @@
 const BASE = (import.meta.env.VITE_API_URL || 'http://localhost:3001') + '/api';
+const BINANCE_BASE = 'https://api.binance.com';
 
 export async function signup(email, password) {
   const res = await fetch(`${BASE}/auth/signup`, {
@@ -42,9 +43,17 @@ export async function removeKeys(token) {
 }
 
 export async function fetchCandles(symbol, interval = '1h', limit = 150) {
-  const res = await fetch(`${BASE}/market/candles?symbol=${symbol}&interval=${interval}&limit=${limit}`);
+  const res = await fetch(`${BINANCE_BASE}/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`);
   if (!res.ok) throw new Error('Failed to fetch candles');
-  return res.json();
+  const raw = await res.json();
+  return raw.map(c => ({
+    t:     c[0] / 1000,
+    open:  parseFloat(c[1]),
+    high:  parseFloat(c[2]),
+    low:   parseFloat(c[3]),
+    close: parseFloat(c[4]),
+    vol:   parseFloat(c[5])
+  }));
 }
 
 export async function fetchTicker(symbol) {

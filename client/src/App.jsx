@@ -390,7 +390,7 @@ function TradingPlatform({ token, email, hasKeys, onLogout, onConnectKeys }) {
 
   // WebSocket live prices
   useEffect(() => {
-    const wsBase = import.meta.env.VITE_WS_URL || 'ws://localhost:3002';
+    const wsBase = `wss://stream.binance.com:9443/stream?streams=btcusdt@ticker/ethusdt@ticker/solusdt@ticker/xrpusdt@ticker/bnbusdt@ticker`;
     const ws = new WebSocket(wsBase);
     ws.onmessage = e => {
       try {
