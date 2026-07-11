@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { fetchCandles, placeOrder, testOrder, fetchBalances, fetchOpenOrders, cancelOrder, signup, login, saveKeys, removeKeys } from './api.js';
+import { fetchCandles, placeOrder, testOrder, fetchBalances, fetchOpenOrders, cancelOrder, signup, login, saveKeys, removeKeys, fetchMLPrediction } from './api.js';
 import { calcBB, calcEMA, calcRSI, calcMACD, generatePrediction } from './indicators.js';
 
 const PAIRS     = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'XRPUSDT', 'BNBUSDT'];
@@ -359,6 +359,7 @@ function TradingPlatform({ token, email, hasKeys, onLogout, onConnectKeys }) {
   const [orderStatus, setStatus] = useState(null);
   const [orderLoading, setOL]   = useState(false);
   const [tab, setTab]           = useState('prediction');
+  const [mlPrediction, setMlPrediction] = useState(null);
   const [dims, setDims]         = useState({ w: 860, h: 380 });
   const [showUserMenu, setUserMenu] = useState(false);
   const containerRef            = useRef(null);
@@ -380,6 +381,15 @@ function TradingPlatform({ token, email, hasKeys, onLogout, onConnectKeys }) {
       setError('Could not fetch candles');
     } finally { setLoading(false); }
   }, [pair, interval]);
+  const loadMLPrediction = useCallback(async () => {
+  try {
+    const data = await fetchMLPrediction(pair);
+    setMlPrediction(data);
+  } catch (_) {}
+  }, [pair]);
+
+  useEffect(() => { loadMLPrediction(); }, [loadMLPrediction]);
+
 
   useEffect(() => { loadCandles(); }, [loadCandles]);
 
@@ -573,8 +583,29 @@ function TradingPlatform({ token, email, hasKeys, onLogout, onConnectKeys }) {
             <div style={{ padding: 12, maxHeight: 180, overflowY: 'auto' }}>
 
               {/* Prediction */}
-              {tab === 'prediction' && prediction && (
+              {tab === 'prediction' && (
                 <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+                  {mlPrediction && (
+                    <div style={{ background: 'rgba(41,98,255,0.1)', border: `1px solid ${C.accent}`, borderRadius: 8, padding: '10px 16px', marginBottom: 12, display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap' }}>
+                      <div>
+                        <div style={{ color: C.muted, fontSize: 10, marginBottom: 4, letterSpacing: 1 }}>LSTM NEURAL NETWORK</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{ color: mlPrediction.direction === 'UP' ? C.up : C.down, fontWeight: 700, fontSize: 16 }}>
+                            {mlPrediction.direction === 'UP' ? '▲' : '▼'} {mlPrediction.direction}
+                          </span>
+                          <span style={{ color: C.muted, fontSize: 11 }}>{mlPrediction.confidence}% confidence</span>
+                        </div>
+                      </div>
+                      <div style={{ borderLeft: `1px solid ${C.border}`, paddingLeft: 16 }}>
+                        <div style={{ color: C.muted, fontSize: 10, marginBottom: 4 }}>PREDICTED IN 4H</div>
+                        <div style={{ color: C.text, fontSize: 13, fontWeight: 600 }}>${mlPrediction.predicted_price?.toLocaleString()}</div>
+                      </div>
+                      <div style={{ borderLeft: `1px solid ${C.border}`, paddingLeft: 16 }}>
+                        <div style={{ color: C.muted, fontSize: 10, marginBottom: 4 }}>MODEL ACCURACY</div>
+                        <div style={{ color: C.up, fontSize: 13 }}>{mlPrediction.accuracy}</div>
+                      </div>
+                    </div>
+                  )}
                   <div style={{ minWidth: 200 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
                       <span style={{ color: C.muted }}>signal:</span>

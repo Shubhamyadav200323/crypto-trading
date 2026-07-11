@@ -3,6 +3,7 @@ const express   = require('express');
 const cors      = require('cors');
 const mongoose  = require('mongoose');
 const WebSocket = require('ws');
+const axios = require('axios');
 
 const app = express();
 app.use(cors({ origin: [
@@ -43,3 +44,15 @@ function connectBinanceWS() {
 connectBinanceWS();
 
 wss.on('connection', () => console.log(`🌐 Browser connected (total: ${wss.clients.size})`));
+// ML Service proxy
+app.get('/api/ml/predict', async (req, res) => {
+  try {
+    const symbol = req.query.symbol || 'BTC-USD';
+    const { data } = await axios.get(
+      `https://fearless-forgiveness-production-56cf.up.railway.app/predict?symbol=${symbol}`
+    );
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'ML service unavailable' });
+  }
+});

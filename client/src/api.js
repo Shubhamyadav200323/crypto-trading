@@ -108,3 +108,10 @@ export async function cancelOrder(symbol, orderId, token) {
   if (!res.ok) throw new Error(data.error);
   return data;
 }
+export async function fetchMLPrediction(symbol) {
+  const binanceSymbol = symbol.replace('USDT', '-USD');
+  const res = await fetch(`${BASE}/ml/predict?symbol=${binanceSymbol}`);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error);
+  return data;
+}
