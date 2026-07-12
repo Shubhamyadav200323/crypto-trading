@@ -583,7 +583,7 @@ function TradingPlatform({ token, email, hasKeys, onLogout, onConnectKeys }) {
             <div style={{ padding: 12, maxHeight: 180, overflowY: 'auto' }}>
 
               {/* Prediction */}
-              {tab === 'prediction' && (
+              {tab === 'prediction' && prediction && (
                 <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
                   {mlPrediction && (
                     <div style={{ background: 'rgba(41,98,255,0.1)', border: `1px solid ${C.accent}`, borderRadius: 8, padding: '10px 16px', marginBottom: 12, display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap' }}>
